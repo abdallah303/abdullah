@@ -107,7 +107,7 @@ echo "Update Configuration File"
 cd /usr/local/nagios/etc/
 
 
-sed -i '/^allowed_hosts=/s/$/,10.28.82.5/' /usr/local/nagios/etc/nrpe.cfg
+sed -i '/^allowed_hosts=/s/$/,YOUR_SERVER_ADDRESS_HERE/' /usr/local/nagios/etc/nrpe.cfg
 
 sed -i 's/^dont_blame_nrpe=.*/dont_blame_nrpe=1/g' /usr/local/nagios/etc/nrpe.cfg
 

@@ -1,0 +1,460 @@
+
+./check_nt -H 192.168.234.141 -s password -p 12489 -v CLIENTVERSION
+NSClient++ 0.4.4.15 2015-11-25
+
+above command is confirming that NSClient is ready
+
+Now we have to write the commands in Nagios server in order to monitor the windows services
+
+To configure the commands edit the file called commands.cfg  which is located in /usr/local/nagios/etc/objects/ (default installation) directory
+
+
+The commands to monitor the windows server and its services, what are the commands are required for you configure only that from below.
+Disk space checking
+
+below command is to check disk space utilization (.i.e. C: D: E: F: …… Z:)
+
+define command{
+command_name check_nt_disk
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v USEDDISKSPACE -l $ARG1$ -w $ARG2$ -c $ARG3$
+}
+
+Below command is to check CPU utilization
+
+define command{
+command_name check_nt_cpuload
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v CPULOAD -l $ARG1$
+}
+
+Check Server uptime
+
+define command{
+command_name check_nt_uptime
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v UPTIME
+}
+
+Check NSClient installed version
+
+define command{
+command_name check_nt_clientversion
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v CLIENTVERSION
+}
+
+Running process status verify using below command
+
+define command{
+command_name check_nt_process
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v PROCSTATE -l $ARG1$
+}
+
+below mentioned command will check all the windows services status as to mention in “service name” in argument1
+
+define command{
+command_name check_nt_service
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v SERVICESTATE -d SHOWALL -l $ARG1$
+}
+
+below mentioned command will check windows memory usage utilization
+
+define command{
+command_name check_nt_memuse
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v MEMUSE -w $ARG1$ -c $ARG2$
+}
+
+to check windows machine paging file usage
+
+define command{
+command_name check_nt_pagingfile
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Paging File(_Total)\% Usage","Paging File usage is %.2f %%" -w $ARG1$ -c $ARG2$
+}
+
+DHCP queue length verification
+
+define command{
+command_name check_nt_DHCP_queue_length
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\DHCP Server\Conflict Check Queue Length","Waiting in DHCP Queue due to Conflict is %.f" -w 2 -c 5
+}
+
+DHCP Active queue
+
+define command{
+command_name check_nt_DHCP_active_queue_length
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\DHCP Server\Active Queue Length","Waiting in DHCP Queue for Normal Processing is %.f" -w 15 -c 30
+}
+
+DHCP – Average response time calculation
+
+define command{
+command_name check_nt_DHCP_average_response_time
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\DHCP Server\Milliseconds per packet (Avg)","Average DHCP Server Response in is %.f" -w 70 -c 250
+}
+
+To verify your DNS recursive query is resolving Name to IP we can check using below command
+
+define command{
+command_name check_nt_DNS_recursive_query_failures
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\DNS\Recursive Query Failure/sec","DNS Recursive Queries are failing at %.f per second" -w 5 -c 80
+}
+
+DNS recursive query timeouts, given query to the DNS is resolving within given time
+
+define command{
+command_name check_nt_DNS_recursive_query_timeouts
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\DNS\Recursive Query TimeOut/sec","DNS Recursive Queries are failing because Timed Out at %.f per second" -w 5 -c 80
+}
+
+DNS – Secure Update Failures
+
+define command{
+command_name check_nt_DNS_secure_update_failures
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\DNS\Secure Update Failure","DNS Secure Update Failures since last Service Restart is %.f" -w 1 -c 15
+}
+
+DNS – Total queries received per second
+
+define command{
+command_name check_nt_DNS_total_queries_per_sec
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\WINS Server\Failed Queries/sec","Total Queries received per second is %.f" -w 3 -c 5
+}
+
+This below command will check the User login errors after last reboot
+
+define command{
+command_name check_nt_logon_errors
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Server\Errors Logon","Logon Errors since last reboot is %.f" -w 50 -c 150
+}
+
+CIFS / SMB General System Errors, If you want to check errors of CIFS below command will check
+
+define command{
+command_name check_nt_SMB_general_system_errors
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Server\Errors System","SMB Errors due to Server problems is %.f" -w 2 -c 20
+}
+
+CIFS / SMB Blocking requests rejected
+
+define command{
+command_name check_nt_SMB_blocking_requests_rejected
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Server\Blocking Requests Rejected","SMB Blockiing requests rejected due to insufficient free resources is %.f Server Parameters need adjusting" -w 10 -c 100
+}
+
+CPU Load average every 10minutes, 60minutes and 24Hours
+
+define command{
+command_name check_nt_cpu_avg
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -v CPULOAD -l 10,60,95,60,60,95,1440,60,95
+}
+
+Memory pool non paged
+
+define command{
+command_name check_nt_memory_pool_nonpaged_peak
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Server\Pool Nonpaged Peak","Maxium number of bytes of nonpaged pool which should be same as installed physical memory is %.f"
+}
+
+Memory Pool Paged Failures
+
+define command{
+command_name check_nt_memory_pool_paged_failures
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Server\Pool Paged Failures","Number of times allocation from the page pool have failed is %.f Physical RAM or paging file too small" -w 2 -c 50
+}
+
+Paging File Usage 30% is warning and 60 is CRITICAL
+
+define command{
+command_name check_nt_paging_file_useage
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Paging File(_Total)\% Usage","Paging file usage is %.2f %%" -w 30 -c 60
+}
+
+System PTEs with 3GB switch
+
+define command{
+command_name check_nt_system_PTE_with_3GB
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Memory\Free System Page Table Entries","Number of Page Table Entries not being used is %.f Thresholds set for testing /3GB switch on or off" -w 8000 -c 5000
+}
+
+Registry Quota in Use (percent)
+
+When applications such as Rdisk.exe and other Backup software are used to backup the registry, the amount of paged pool memory used by these applications are charged towards the registry’s quota. If the amount consumed reaches 95 percent of the Registry Size Limit then the warning popup mentioned above will be displayed. The warning is displayed only once for each boot cycle; which means that the popup will not be displayed until the system is rebooted, and the threshold reached again.
+
+define command{
+command_name check_nt_registry_quota_in_use
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\System\% Registry Quota In Use","Percent Quota in use is %.2f %%" -w 60 -c 85
+}
+
+Server Queue Length
+
+define command{
+command_name check_nt_server_work_queues
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Server Work Queues(0)\Queue Length","Current work queue which is an indication of Processing Load is %.f " -w 4 -c 7
+}
+
+Disk Queue Length
+
+define command{
+command_name check_nt_queue_length
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\PhysicalDisk(_Total)\Avg. Disk Queue Length","Average number of both read and write requests queued is %.2f Consider a faster disk array" -w 1 -c 5
+}
+
+Printer not ready error from last reboot
+
+define command{
+command_name check_nt_printer_not_ready
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Print Queue(_Total)\Out of Paper Errors","Out of Paper Printer Errors since last Service restart is %.f" -w 1 -c 3
+}
+
+Printer out of paper errors
+
+define command{
+command_name check_nt_printer_out_of_paper_errors
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\Print Queue(_Total)\Out of Paper Errors","Out of Paper Printer Errors since last Service restart is %.f" -w 1 -c 3
+}
+
+SMTP Local delivery Queue
+
+define command{
+command_name check_nt_smtp_local_delivery
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SMTP Server(_Total)\Local Queue Length","Number of Messages waiting in queue for Local Recipients is %.f" -w 5 -c 15
+}
+
+SMTP Remote Delivery Queue
+
+define command{
+command_name check_nt_smtp_remote_delivery_queue
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SMTP Server(_Total)\Remote Queue Length","Number of Messages waiting in queue for Remote Recipients is %.f" -w 25 -c 50
+}
+
+Exchange Active users count
+
+define command{
+command_name check_nt_exchange_active_user_count
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSExchangeIS\Active User Count" -w 4 -c 10
+}
+
+Exchange Connection Count
+
+define command{
+command_name check_nt_exchange_connection_count
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSExchangeIS\Connection Count" -w 100 -c 250
+}
+
+Exchange Message Delivery time
+
+define command{
+command_name check_nt_exchange_delivery_time
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSExchangeIS(_Average Delivery Time)\%%Usage","Average Delivery Time is %.2f%%" -w 2 -c 10
+}
+
+Exchange Maximum Users
+
+define command{
+command_name check_nt_exchange_maximum_users
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSExchangeIS\Connection Count" -w 100 -c 250
+}
+
+Exchange messages delivered in Minute
+
+define command{
+command_name check_nt_exchange_messages_delivered_per_min
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "MSExchangeIS Mailbox(_Total)\Messages Delivered/min" -w 25 -c 120
+}
+
+Exchange Messages Submitted in Minute
+
+define command{
+command_name check_nt_exchange_messages_submitted_per_min
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSExchangeIS Mailbox(_Total)\Messages Submitted/min" -w 5 -c 35
+}
+
+Exchange Receive Queue
+
+define command{
+command_name check_nt_exchange_receive_queue
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSExchangeIS Mailbox(_Receive Queue Size)\%%Usage","Queue Length is %.2f" -w 3 -c 15
+}
+
+Exchange Send queue
+
+define command{
+command_name check_nt_exchange_send_queue
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSExchangeIS(_Send Queue Size)\%%Usage","Queue Length is $.2f%%" -w 3 -c 15
+}
+
+SQL Database Data file size (Total)
+
+define command{
+command_name check_nt_sql_database_files_size
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SQLServer:Databases(_Total)\Data File(s) Size (KB)","SQL Server Databases Datafile size total is %.f" -w 5 -c 30
+}
+
+SQL Database Log files size (Total)
+
+define command{
+command_name check_nt_sql_database_log_files_size
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SQLServer:Databases(_Total)\Log File(s) Size (KB)","SQL Server Databases Logfile size total %.f" -w 10 -c 100
+}
+
+SQL Database Data file size ( Individual)
+
+define command{
+command_name check_nt_sql_database_data_file_size_individual
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSSQL$SBSMONITORING:Databases(_Total)\Data File(s) Size (KB)","SQL Server Databases Datafile size total is %.f" -w 5 -c 30
+}
+
+SQL Database Log File size (Individual)
+
+define command{
+command_name check_nt_sql_database_log_file_size_individual
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSSQL$SBSMONITORING:Databases(_Total)\Log File(s) Size (KB)","SQL Server Databases Logfile size total %.f" -w 10 -c 100
+}
+
+SQL Server service status ( This we can also check using service status )
+
+define command{
+command_name check_nt_sql_server_service
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v SERVICESTATE -l mssqlserver
+}
+
+SQL Database Size
+
+define command{
+command_name check_nt_sql_database_size
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SQLServerDatabases(_Data Files() Size (KB)\%%Usage","Databases Size is $.2f%%" -w 30000 -c 70000
+}
+
+SQL Server Deadlocks / Second
+
+define command{
+command_name check_nt_sql_server_deadlocks_per_sec
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SQLServer:Locks(_Total)\Number of Deadlocks/sec","SQL Server Deadlocks per second total %.f" -w 1 -c 5
+}
+
+SQL Server Connections
+
+continuous 20 connections will give to warning and 40 connections will give you error
+
+define command{
+command_name check_nt_sql_server_connections
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SQLServer:General Statistics\User Connections","SQL Server Connections are %.f" -w 20 -c 40
+}
+
+SQL Database data size (Total)
+
+define command{
+command_name check_nt_sql_database_data_size
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SQLServer:Databases(_Total)\Data File(s) Size (KB)","SQL Server Databases Datafile size total is %.f" -w 5 -c 30
+}
+
+SQL Database Log Size (Total)
+
+define command{
+command_name check_nt_sql_database_data_size
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\SQLServer:Databases(_Total)\Log File(s) Size (KB)","SQL Server Databases Logfile size total %.f" -w 10 -c 100
+}
+
+SQL Replication Agents (SharePoint Instance)
+
+define command{
+command_name check_nt_sql_replication_agents
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSSQL$Sharepoint:Replication Agents\Running","Number of SQL Server Replication Agents running are %.f“
+}
+
+SQL Database Log size (SharePoint Instance)
+
+define command{
+command_name check_nt_sql_database_log_size_sharepoint
+command_line $USER1$/check_nt -H $HOSTADDRESS$ -s password -p 12489 -v COUNTER -l "\MSSQL$Sharepoint:Databases(_Total)\Log File(s) Size (KB)","SQL Server Databases Logfile size total %.f" -w 10 -c 30
+}
+
+Required commands we will add them to Nagios server, after adding them to commands.cfg file we have to configure the windows template and services to monitor.
+
+Now Create a File with Windows Server name in Nagios Server
+Monitoring Windows Client Using Nagios
+
+# touch ARKIT-WINDOWS.cfg
+
+[root@TechTutorial objects]# cat ARKIT-WINDOWS.cfg
+###############################################################################
+###############################################################################
+#
+# HOST DEFINITIONS Tech Tutorial http://arkit.co.in
+#
+###############################################################################
+###############################################################################
+
+define host{
+        use             windows-server ; Windows Template
+        host_name       ARKIT-WINDOWS   ; ARKIT-WINDOWS machine
+        alias           Tech Tutorial Windows Server ARKIT-WINDOWS  ; How much long you want you write
+        contact_groups   admins
+        address         192.168.1.2
+        }
+
+
+###############################################################################
+###############################################################################
+#
+# SERVICE DEFINITIONS
+#
+###############################################################################
+###############################################################################
+
+#To Check Nagios Client Version
+define service{
+        use                     generic-service
+        host_name               ARKIT-WINDOWS
+        service_description     NSClient++ Version
+        check_command           check_nt_clientversion
+        }
+
+## To check Server UPTIME
+define service{
+        use                     generic-service
+        host_name               ARKIT-WINDOWS
+        service_description     Uptime
+        check_command           check_nt_uptime
+        }
+
+## To check CPULOAD
+define service{
+        use                     generic-service
+        host_name               ARKIT-WINDOWS
+        service_description     CPU Load
+        check_command           check_nt_cpuload!5
+        }
+
+
+# Memory Usage check
+define service{
+        use                     generic-service
+        host_name               ARKIT-WINDOWS
+        service_description     Memory Usage
+        check_command           check_nt_memuse!80!90
+        }
+
+# To check C: Drive space utilization
+define service{
+        use                     generic-service
+        host_name               ARKIT-WINDOWS
+        service_description     C:\ Drive Space
+        check_command           check_nt_disk!c!80!90
+        }
+
+define service{
+        use                     generic-service
+        host_name               ARKIT-WINDOWS
+        service_description     W3SVC
+        check_command           check_nt_service!W3SVC
+        }
+
+## END Config FILE ######
+
+Place this file into your configuration directory and reload your nagios services.
+
+If there is no configuration directory is configured then add this file path to nagios.cfg
+
+approx 36 number line
+
+# vi /usr/local/nagios/etc/objects/nagios.cfg
+
+cfg_file=/usr/local/nagios/etc/objects/ARKIT-WINDOWS.cfg

@@ -1,6 +1,6 @@
 #!/bin/bash
 #Author: Abdullah ilyas
-
+#Version: 1
 echo "
  ____  _   _    _    ____   _____        __
 / ___|| | | |  / \  |  _ \ / _ \ \      / /

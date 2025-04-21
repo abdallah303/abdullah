@@ -1,0 +1,13 @@
+<?php
+// config.php
+$host = 'localhost';
+$dbname = 'user_management';
+$username = 'your_db_username';
+$password = 'your_db_password';
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
